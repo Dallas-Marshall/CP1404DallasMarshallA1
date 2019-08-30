@@ -19,11 +19,11 @@ def main():
     """program is a list of movies that allows a user to track movies that they have watched and wish to watch."""
     print("Movies To Watch 1.0 - by Dallas Marshall")
     print("{} movies loaded".format(movies_loaded))
-    movies_unwatched = 0
-    movies_watched = 0
     menu_selection = get_user_input()
     while menu_selection != 'Q':
         if menu_selection == 'L':
+            movies_unwatched = 0
+            movies_watched = 0
             # List movies in formatted table with unwatched movies marked with an *
             for movie in range(len(movies)):
                 if movies[movie][3].lower() == 'u':
@@ -34,10 +34,45 @@ def main():
                     movies_watched += 1
             print("{:5} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
         elif menu_selection == "A":
-            print("Need to write code for adding movies")
+            new_title = get_valid_title()
+            new_year = get_valid_year()
+            new_category = get_valid_category()
+            movies.append([new_title, new_year, new_category, 'u'])
+            print("{} ({} from {}) added to movie list".format(new_title, new_category, new_year))
         else:
             print("Need to write code for watching movies")
         menu_selection = get_user_input()
+    print("ADD ending msg and saving code")
+
+
+def get_valid_title():
+    new_title = input("Title: ")
+    while not new_title.strip():
+        print("Input can not be blank")
+        new_title = input("Title: ")
+    return new_title.title()
+
+
+def get_valid_year():
+    is_valid_year = False
+    while not is_valid_year:
+        try:
+            new_year = int(input("Year: "))
+            if new_year < 0:
+                print("Number must be >= 0")
+            else:
+                is_valid_year = True
+                return str(new_year)
+        except ValueError:
+            print("Invalid input; enter a valid number")
+
+
+def get_valid_category():
+    new_category = input("Category: ")
+    while not new_category.strip():
+        print("Input can not be blank")
+        new_category = input("Category: ")
+    return new_category.title()
 
 
 def get_user_input():
