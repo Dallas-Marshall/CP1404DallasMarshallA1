@@ -19,18 +19,20 @@ def main():
     """program is a list of movies that allows a user to track movies that they have watched and wish to watch."""
     print("Movies To Watch 1.0 - by Dallas Marshall")
     print("{} movies loaded".format(movies_loaded))
+    movies_unwatched = 0
+    movies_watched = 0
     menu_selection = get_user_input()
     while menu_selection != 'Q':
         if menu_selection == 'L':
-            # iterate through movies and if not watched assign asterisk else add space to keep lined up
-            for index in range(len(movies)):
-                if movies[index][3] == 'u':
-                    movies[index][0] = '* ' + movies[index][0]
+            # List movies in formatted table with unwatched movies marked with an *
+            for movie in range(len(movies)):
+                if movies[movie][3].lower() == 'u':
+                    movies_unwatched += 1
+                    print("{}. * {:40} - {:5} ({})".format(movie, movies[movie][0], movies[movie][1], movies[movie][2]))
                 else:
-                    movies[index][0] = '  ' + movies[index][0]
-            # print(movies)
-            for i in range(movies_loaded):
-                print("{}. {:40} - {:5} ({})".format(i, movies[i][0], movies[i][1], movies[i][2]))
+                    print("{}.   {:40} - {:5} ({})".format(movie, movies[movie][0], movies[movie][1], movies[movie][2]))
+                    movies_watched += 1
+            print("{:5} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
         elif menu_selection == "A":
             print("Need to write code for adding movies")
         else:
