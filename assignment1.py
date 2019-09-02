@@ -4,6 +4,7 @@ Name: Dallas Marshall
 Date started: 26/08/19
 GitHub URL: https://github.com/cp1404-students/2019-2-a1-Dallas-Marshall
 """
+import operator
 
 # import file
 in_file = open('movies.csv', 'r')
@@ -25,6 +26,7 @@ def main():
             movies_unwatched = 0
             movies_watched = 0
             longest_title_length = get_longest_title()
+            movies.sort(key=operator.itemgetter(1))
             # List movies in formatted table with unwatched movies marked with an *
             for movie in range(len(movies)):
                 if movies[movie][3].lower() == 'u':
