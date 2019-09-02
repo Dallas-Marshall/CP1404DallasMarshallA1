@@ -24,15 +24,18 @@ def main():
         if menu_selection == 'L':
             movies_unwatched = 0
             movies_watched = 0
+            longest_title_length = get_longest_title()
             # List movies in formatted table with unwatched movies marked with an *
             for movie in range(len(movies)):
                 if movies[movie][3].lower() == 'u':
                     movies_unwatched += 1
-                    print("{}. * {:40} - {:5} ({})".format(movie, movies[movie][0], movies[movie][1], movies[movie][2]))
+                    print("{}. * {:{}} - {:5} ({})".format(movie, movies[movie][0], longest_title_length,
+                                                           movies[movie][1], movies[movie][2]))
                 else:
-                    print("{}.   {:40} - {:5} ({})".format(movie, movies[movie][0], movies[movie][1], movies[movie][2]))
+                    print("{}.   {:{}} - {:5} ({})".format(movie, movies[movie][0], longest_title_length,
+                                                           movies[movie][1], movies[movie][2]))
                     movies_watched += 1
-            print("{:5} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
+            print("{} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
         elif menu_selection == "A":
             new_title = get_valid_title()
             new_year = get_valid_year()
@@ -43,6 +46,15 @@ def main():
             print("Need to write code for watching movies")
         menu_selection = get_user_input()
     print("ADD ending msg and saving code")
+
+
+def get_longest_title():
+    longest_title_length = 0
+    for movie in movies:
+        title_length = len(movie[0])
+        if title_length > longest_title_length:
+            longest_title_length = title_length
+    return longest_title_length
 
 
 def get_valid_title():
