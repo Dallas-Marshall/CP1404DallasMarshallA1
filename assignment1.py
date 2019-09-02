@@ -26,7 +26,10 @@ def main():
             movies_unwatched = 0
             movies_watched = 0
             longest_title_length = get_longest_title()
-            movies.sort(key=operator.itemgetter(1))
+            # Convert all years to integers and then sort list by years
+            for movie in range(len(movies)):
+                movies[movie][1] = int(movies[movie][1])
+            movies.sort(key=operator.itemgetter(int(1)))
             # List movies in formatted table with unwatched movies marked with an *
             for movie in range(len(movies)):
                 if movies[movie][3].lower() == 'u':
