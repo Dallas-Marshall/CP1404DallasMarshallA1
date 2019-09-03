@@ -13,8 +13,8 @@ def main():
     in_file = open('movies.csv', 'r')
     for line in in_file:
         movie = line.strip().split(',')
-        movies += (movie[0], int(movie[1]), movie[2], movie[3])
-    print(movies)
+        movie[1] = int(movie[1])  # Convert year into integer
+        movies.append(movie)
     in_file.close()
 
     print("Movies To Watch 1.0 - by Dallas Marshall")
@@ -28,7 +28,7 @@ def main():
         elif menu_selection == 'A':
             add_movie(movies)
         elif menu_selection == 'W':
-            print("WATCHING MOVIES...")
+            watch_movie(movies)
         else:
             print("Invalid Menu Option")
         print("""Menu:\nL - List movies\nA - Add new movie\nW - Watch a movie\nQ - Quit""")
@@ -45,7 +45,7 @@ def add_movie(movies):
 
 
 def list_movies(movies):
-    """Program takes list of movies, sorts them by year published and then prints formatted table labeling unwatched"""
+    """Function takes list of movies, sorts them by year published and then prints formatted table labeling unwatched"""
     movies_unwatched = 0
     movies_watched = 0
     longest_title_length = get_longest_title(movies)
@@ -55,19 +55,58 @@ def list_movies(movies):
     movies.sort(key=operator.itemgetter(int(1)))
     # List movies in formatted table with unwatched movies marked with an *
     for i in range(len(movies)):
-        if movies[i][3].lower() == 'u':
-            unwatched_watched_icon = '*'
+        if not is_movie_watched(movies, i):
+            unwatched_icon_parameter = '*'  # If unwatched set variable equal to asterisk
             movies_unwatched += 1
         else:
-            unwatched_watched_icon = ' '
+            unwatched_icon_parameter = ' '  # If watched set variable to equal space (to keep aligned)
             movies_watched += 1
-        print("{}. {} {:{}} - {:5} ({})".format(i, unwatched_watched_icon, movies[i][0], longest_title_length,
+        print("{}. {} {:{}} - {:5} ({})".format(i, unwatched_icon_parameter, movies[i][0], longest_title_length,
                                                 movies[i][1], movies[i][2]))
     print("{} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
 
 
+def is_movie_watched(movies, i):
+    """Function takes a list of movies and the index of the movie to test
+    Returns True if watched, False if Unwatched"""
+    if movies[i][3].lower() == 'w':
+        return True
+    else:
+        return False
+
+
+def watch_movie(movies):
+    """Function takes a list of movies and asks the user to specify which movie they would like to set as watched"""
+    movies_unwatched = 0
+    movies_watched = 0
+    for i in range(len(movies)):
+        if not is_movie_watched(movies, i):
+            movies_unwatched += 1
+        else:
+            movies_watched += 1
+    if movies_unwatched == 0:
+        return print("No more movies to watch!")
+    print("Enter the number of a movie to mark as watched")
+    is_valid_input = False
+    while not is_valid_input:
+        try:
+            movie_index = int(input(">>> "))
+            if movie_index < 0:
+                print("Number must be >= 0")
+            elif movie_index > (len(movies) - 1):
+                print("Invalid movie number")
+            elif is_movie_watched(movies, movie_index):
+                return print("You have already watched {}".format(movies[movie_index][0]))
+            else:
+                is_valid_input = True
+                movies[movie_index][3] = 'w'
+                return print("{} from {} watched".format(movies[movie_index][0], movies[movie_index][1]))
+        except ValueError:
+            print("Invalid input; enter a valid number")
+
+
 def get_longest_title(movies):
-    """Program calculates the longest movie name and returns length as an integer."""
+    """Function calculates the longest movie name and returns length as an integer."""
     longest_title_length = 0
     for movie in movies:
         title_length = len(movie[0])
@@ -76,9 +115,8 @@ def get_longest_title(movies):
     return longest_title_length
 
 
-# Get a valid input for a certain for
 def get_valid(selection):
-    """Program takes a string, then asks the user for (string): and checks a valid response is entered. """
+    """Function takes a string, then asks the user for (string): and checks a valid response is entered. """
     user_input = input("{}: ".format(selection))
     while not user_input.strip():
         print("Input can not be blank")
@@ -87,6 +125,7 @@ def get_valid(selection):
 
 
 def get_valid_year():
+    """Function prompts user input and ensures it is a valid year before returning as an integer"""
     is_valid_year = False
     while not is_valid_year:
         try:
