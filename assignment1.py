@@ -56,13 +56,13 @@ def list_movies(movies):
     # List movies in formatted table with unwatched movies marked with an *
     for i in range(len(movies)):
         if movies[i][3].lower() == 'u':
+            unwatched_watched_icon = '*'
             movies_unwatched += 1
-            print("{}. * {:{}} - {:5} ({})".format(i, movies[i][0], longest_title_length,
-                                                   movies[i][1], movies[i][2]))
         else:
-            print("{}.   {:{}} - {:5} ({})".format(i, movies[i][0], longest_title_length,
-                                                   movies[i][1], movies[i][2]))
+            unwatched_watched_icon = ' '
             movies_watched += 1
+        print("{}. {} {:{}} - {:5} ({})".format(i, unwatched_watched_icon, movies[i][0], longest_title_length,
+                                                movies[i][1], movies[i][2]))
     print("{} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
 
 
