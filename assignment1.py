@@ -11,10 +11,10 @@ def main():
     """program is a list of movies that allows a user to track movies that they have watched and wish to watch."""
     movies = []
     in_file = open('movies.csv', 'r')
-    for line_str in in_file:
-        line_list = line_str.strip().split(',')
-        line_list[1] = int(line_list[1])  # Convert year into integer
-        movies.append(line_list)
+    for line in in_file:
+        movie = line.strip().split(',')
+        movies += (movie[0], int(movie[1]), movie[2], movie[3])
+    print(movies)
     in_file.close()
 
     print("Movies To Watch 1.0 - by Dallas Marshall")
