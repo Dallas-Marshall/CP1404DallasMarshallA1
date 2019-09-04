@@ -6,18 +6,16 @@ GitHub URL: https://github.com/cp1404-students/2019-2-a1-Dallas-Marshall
 """
 import operator
 
+INDEX_OF_TITLE = 0
+INDEX_OF_YEAR = 1
+INDEX_OF_CATEGORY = 2
+INDEX_OF_STATUS = 3
+
 
 def main():
     """program is a list of movies that allows a user to track movies that they have watched and wish to watch."""
-    movies = []
-    in_file = open('movies.csv', 'r')
-    for line in in_file:
-        movie = line.strip().split(',')
-        movie[1] = int(movie[1])  # Convert year into integer
-        movies.append(movie)
-    in_file.close()
-
     print("Movies To Watch 1.0 - by Dallas Marshall")
+    movies = read_file()
     menu = """Menu:\nL - List movies\nA - Add new movie\nW - Watch a movie\nQ - Quit"""
     print("{} movies loaded\n{}".format(len(movies), menu))
 
@@ -30,63 +28,82 @@ def main():
         elif menu_selection == 'W':
             watch_movie(movies)
         else:
-            print("Invalid Menu Option")
-        print("""Menu:\nL - List movies\nA - Add new movie\nW - Watch a movie\nQ - Quit""")
+            print("Invalid menu choice")
+        print(menu)
         menu_selection = input(">>> ").upper()
     print("ADD ending msg and saving code")
 
 
+def read_file():
+    """Reads the file containing movies saving as a list."""
+    movies = []
+    in_file = open('movies.csv', 'r')
+    for line in in_file:
+        line_str = line.strip().split(',')
+        movie = [line_str[INDEX_OF_TITLE], int(line_str[INDEX_OF_YEAR]), line_str[INDEX_OF_CATEGORY],
+                 line_str[INDEX_OF_STATUS]]
+        movies.append(movie)
+    in_file.close()
+    return movies
+
+
 def add_movie(movies):
-    new_title = get_valid("Title")
+    """Adds new movie to list."""
+    new_title = get_valid_selection("Title")
     new_year = get_valid_year()
-    new_category = get_valid("Category")
+    new_category = get_valid_selection("Category")
     movies.append([new_title, new_year, new_category, 'u'])
     print("{} ({} from {}) added to movie list".format(new_title, new_category, new_year))
 
 
 def list_movies(movies):
-    """Function takes list of movies, sorts them by year published and then prints formatted table labeling unwatched"""
-    movies_unwatched = 0
-    movies_watched = 0
-    longest_title_length = get_longest_title(movies)
-    # Convert all years to integers and then sort list by years
-    for i in range(len(movies)):
-        movies[i][1] = int(movies[i][1])
+    """Sorts movies by year and prints formatted table labeling unwatched with *."""
     movies.sort(key=operator.itemgetter(int(1)))
     # List movies in formatted table with unwatched movies marked with an *
     for i in range(len(movies)):
+        unwatched_string = ' '
         if not is_movie_watched(movies, i):
-            unwatched_icon_parameter = '*'  # If unwatched set variable equal to asterisk
-            movies_unwatched += 1
-        else:
-            unwatched_icon_parameter = ' '  # If watched set variable to equal space (to keep aligned)
-            movies_watched += 1
-        print("{}. {} {:{}} - {:5} ({})".format(i, unwatched_icon_parameter, movies[i][0], longest_title_length,
-                                                movies[i][1], movies[i][2]))
-    print("{} movies watched, {} movies still to watch".format(movies_watched, movies_unwatched))
+            unwatched_string = '*'  # If unwatched set variable equal to asterisk
+        print(" {}. {} {:{}} - {:5} ({})".format(i, unwatched_string, movies[i][INDEX_OF_TITLE], longest_title(movies),
+                                                 movies[i][INDEX_OF_YEAR], movies[i][INDEX_OF_CATEGORY]))
+    print("{} movies watched, {} movies still to watch".format(number_movies_status(movies, 'w'),
+                                                               number_movies_status(movies, 'u')))
+
+
+def number_movies_status(movies, status):
+    """Returns count of status e.g. (watched (w) or unwatched(u)."""
+    movie_count = 0
+    for i in range(len(movies)):
+        if movies[i][INDEX_OF_STATUS] == '{}'.format(status):
+            movie_count += 1
+    return movie_count
 
 
 def is_movie_watched(movies, i):
-    """Function takes a list of movies and the index of the movie to test
-    Returns True if watched, False if Unwatched"""
-    if movies[i][3].lower() == 'w':
+    """Returns True if movie is watched, else returns False."""
+    if movies[i][INDEX_OF_STATUS].lower() == 'w':
         return True
     else:
         return False
 
 
 def watch_movie(movies):
-    """Function takes a list of movies and asks the user to specify which movie they would like to set as watched"""
-    movies_unwatched = 0
-    movies_watched = 0
-    for i in range(len(movies)):
-        if not is_movie_watched(movies, i):
-            movies_unwatched += 1
-        else:
-            movies_watched += 1
-    if movies_unwatched == 0:
+    """Sets a chosen movie as watched."""
+    if number_movies_status(movies, 'u') == 0:
         return print("No more movies to watch!")
+
     print("Enter the number of a movie to mark as watched")
+    movie_index = get_valid_input(movies)
+
+    if is_movie_watched(movies, movie_index):
+        print("You have already watched {}".format(movies[movie_index][INDEX_OF_TITLE]))
+    else:
+        movies[movie_index][INDEX_OF_STATUS] = 'w'
+        print("{} from {} watched".format(movies[movie_index][INDEX_OF_TITLE], movies[movie_index][INDEX_OF_YEAR]))
+
+
+def get_valid_input(movies):
+    """Returns valid movie index input. """
     is_valid_input = False
     while not is_valid_input:
         try:
@@ -95,37 +112,34 @@ def watch_movie(movies):
                 print("Number must be >= 0")
             elif movie_index > (len(movies) - 1):
                 print("Invalid movie number")
-            elif is_movie_watched(movies, movie_index):
-                return print("You have already watched {}".format(movies[movie_index][0]))
             else:
                 is_valid_input = True
-                movies[movie_index][3] = 'w'
-                return print("{} from {} watched".format(movies[movie_index][0], movies[movie_index][1]))
+                return movie_index
         except ValueError:
             print("Invalid input; enter a valid number")
 
 
-def get_longest_title(movies):
-    """Function calculates the longest movie name and returns length as an integer."""
+def longest_title(movies):
+    """Returns longest movie title length."""
     longest_title_length = 0
     for movie in movies:
-        title_length = len(movie[0])
+        title_length = len(movie[INDEX_OF_TITLE])
         if title_length > longest_title_length:
             longest_title_length = title_length
     return longest_title_length
 
 
-def get_valid(selection):
-    """Function takes a string, then asks the user for (string): and checks a valid response is entered. """
-    user_input = input("{}: ".format(selection))
+def get_valid_selection(selection_name):
+    """Returns a valid (selection) input e.g 'Title'."""
+    user_input = input("{}: ".format(selection_name))
     while not user_input.strip():
         print("Input can not be blank")
-        user_input = input("{}: ".format(selection))
-    return user_input.title()
+        user_input = input("{}: ".format(selection_name))
+    return user_input
 
 
 def get_valid_year():
-    """Function prompts user input and ensures it is a valid year before returning as an integer"""
+    """Returns a valid year input."""
     is_valid_year = False
     while not is_valid_year:
         try:
