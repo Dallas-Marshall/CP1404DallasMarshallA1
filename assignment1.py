@@ -18,7 +18,6 @@ def main():
     movies = read_file()
     menu = """Menu:\nL - List movies\nA - Add new movie\nW - Watch a movie\nQ - Quit"""
     print("{} movies loaded\n{}".format(len(movies), menu))
-
     menu_selection = input(">>> ").upper()
     while menu_selection != 'Q':
         if menu_selection == 'L':
@@ -31,7 +30,8 @@ def main():
             print("Invalid menu choice")
         print(menu)
         menu_selection = input(">>> ").upper()
-    print("ADD ending msg and saving code")
+    print("{} movies saved to movies.csv\nHave a nice day :)".format(len(movies)))
+    save_movies(movies)
 
 
 def read_file():
@@ -59,11 +59,10 @@ def add_movie(movies):
 def list_movies(movies):
     """Sorts movies by year and prints formatted table labeling unwatched with *."""
     movies.sort(key=operator.itemgetter(int(1)))
-    # List movies in formatted table with unwatched movies marked with an *
     for i in range(len(movies)):
         unwatched_string = ' '
         if not is_movie_watched(movies, i):
-            unwatched_string = '*'  # If unwatched set variable equal to asterisk
+            unwatched_string = '*'
         print(" {}. {} {:{}} - {:5} ({})".format(i, unwatched_string, movies[i][INDEX_OF_TITLE], longest_title(movies),
                                                  movies[i][INDEX_OF_YEAR], movies[i][INDEX_OF_CATEGORY]))
     print("{} movies watched, {} movies still to watch".format(number_movies_status(movies, 'w'),
@@ -129,12 +128,16 @@ def longest_title(movies):
     return longest_title_length
 
 
-def get_valid_selection(selection_name):
-    """Returns a valid (selection) input e.g 'Title'."""
-    user_input = input("{}: ".format(selection_name))
+def get_valid_selection(prompt):
+    """Returns a valid (prompt).
+
+     Keyword arguments:
+     prompt -- the string displayed to the user
+     """
+    user_input = input("{}: ".format(prompt))
     while not user_input.strip():
         print("Input can not be blank")
-        user_input = input("{}: ".format(selection_name))
+        user_input = input("{}: ".format(prompt))
     return user_input
 
 
@@ -151,6 +154,23 @@ def get_valid_year():
                 return new_year
         except ValueError:
             print("Invalid input; enter a valid number")
+
+
+def save_movies(movies):
+    out_file = open('movies.csv', 'w')
+    movies.sort(key=operator.itemgetter(int(1)))
+    for movie in movies:
+        line = list_to_string(movie)
+        out_file.write("{}\n".format(line))
+    out_file.close()
+
+
+def list_to_string(list_of_data):
+    """Return a list as a string."""
+    string = ""
+    for element in list_of_data:
+        string += str("{},".format(element))
+    return string
 
 
 if __name__ == '__main__':
