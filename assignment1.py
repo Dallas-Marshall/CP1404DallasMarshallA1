@@ -10,14 +10,16 @@ INDEX_OF_TITLE = 0
 INDEX_OF_YEAR = 1
 INDEX_OF_CATEGORY = 2
 INDEX_OF_STATUS = 3
+FILE_NAME = 'movies.csv'
+WATCHED = 'w'
+UNWATCHED = 'u'
 
 
 def main():
     """program is a list of movies that allows a user to track movies that they have watched and wish to watch."""
-    print("Movies To Watch 1.0 - by Dallas Marshall")
     movies = read_file()
     menu = """Menu:\nL - List movies\nA - Add new movie\nW - Watch a movie\nQ - Quit"""
-    print("{} movies loaded\n{}".format(len(movies), menu))
+    print("Movies To Watch 1.0 - by Dallas Marshall\n{} movies loaded\n{}".format(len(movies), menu))
     menu_selection = input(">>> ").upper()
     while menu_selection != 'Q':
         if menu_selection == 'L':
@@ -30,14 +32,14 @@ def main():
             print("Invalid menu choice")
         print(menu)
         menu_selection = input(">>> ").upper()
-    print("{} movies saved to movies.csv\nHave a nice day :)".format(len(movies)))
+    print("{} movies saved to {}\nHave a nice day :)".format(len(movies), FILE_NAME))
     save_movies(movies)
 
 
 def read_file():
-    """Reads the file containing movies saving as a list."""
+    """Read the file containing movies saving as a list."""
     movies = []
-    in_file = open('movies.csv', 'r')
+    in_file = open('{}'.format(FILE_NAME), 'r')
     for line in in_file:
         line_str = line.strip().split(',')
         movie = [line_str[INDEX_OF_TITLE], int(line_str[INDEX_OF_YEAR]), line_str[INDEX_OF_CATEGORY],
@@ -48,29 +50,30 @@ def read_file():
 
 
 def add_movie(movies):
-    """Adds new movie to list."""
+    """Add new movie to list."""
     new_title = get_valid_selection("Title")
     new_year = get_valid_year()
     new_category = get_valid_selection("Category")
-    movies.append([new_title, new_year, new_category, 'u'])
+    movies.append([new_title, new_year, new_category, UNWATCHED])
     print("{} ({} from {}) added to movie list".format(new_title, new_category, new_year))
 
 
 def list_movies(movies):
-    """Sorts movies by year and prints formatted table labeling unwatched with *."""
-    movies.sort(key=operator.itemgetter(int(1)))
+    """Sort movies by year and prints formatted table labeling unwatched with *."""
+    movies.sort(key=operator.itemgetter(INDEX_OF_YEAR, INDEX_OF_TITLE))
     for i in range(len(movies)):
         unwatched_string = ' '
-        if not is_movie_watched(movies, i):
+        if not is_watched(movies, i):
             unwatched_string = '*'
-        print(" {}. {} {:{}} - {:5} ({})".format(i, unwatched_string, movies[i][INDEX_OF_TITLE], longest_title(movies),
-                                                 movies[i][INDEX_OF_YEAR], movies[i][INDEX_OF_CATEGORY]))
-    print("{} movies watched, {} movies still to watch".format(number_movies_status(movies, 'w'),
-                                                               number_movies_status(movies, 'u')))
+        print("{:2}. {} {:{}} - {:5} ({})".format(i, unwatched_string, movies[i][INDEX_OF_TITLE],
+                                                  calculate_longest_title(movies), movies[i][INDEX_OF_YEAR],
+                                                  movies[i][INDEX_OF_CATEGORY]))
+    print("{} movies watched, {} movies still to watch".format(count_movies_status(movies, WATCHED),
+                                                               count_movies_status(movies, UNWATCHED)))
 
 
-def number_movies_status(movies, status):
-    """Returns count of status e.g. (watched (w) or unwatched(u)."""
+def count_movies_status(movies, status):
+    """Return count of status e.g. (watched (w) or unwatched(u)."""
     movie_count = 0
     for i in range(len(movies)):
         if movies[i][INDEX_OF_STATUS] == '{}'.format(status):
@@ -78,31 +81,31 @@ def number_movies_status(movies, status):
     return movie_count
 
 
-def is_movie_watched(movies, i):
-    """Returns True if movie is watched, else returns False."""
-    if movies[i][INDEX_OF_STATUS].lower() == 'w':
+def is_watched(movies, i):
+    """Return True if movie is watched, else returns False."""
+    if movies[i][INDEX_OF_STATUS].lower() == WATCHED:
         return True
     else:
         return False
 
 
 def watch_movie(movies):
-    """Sets a chosen movie as watched."""
-    if number_movies_status(movies, 'u') == 0:
+    """Set a chosen movie as watched."""
+    if count_movies_status(movies, UNWATCHED) == 0:
         return print("No more movies to watch!")
 
     print("Enter the number of a movie to mark as watched")
     movie_index = get_valid_input(movies)
 
-    if is_movie_watched(movies, movie_index):
+    if is_watched(movies, movie_index):
         print("You have already watched {}".format(movies[movie_index][INDEX_OF_TITLE]))
     else:
-        movies[movie_index][INDEX_OF_STATUS] = 'w'
+        movies[movie_index][INDEX_OF_STATUS] = WATCHED
         print("{} from {} watched".format(movies[movie_index][INDEX_OF_TITLE], movies[movie_index][INDEX_OF_YEAR]))
 
 
 def get_valid_input(movies):
-    """Returns valid movie index input. """
+    """Return valid movie index input. """
     is_valid_input = False
     while not is_valid_input:
         try:
@@ -118,8 +121,8 @@ def get_valid_input(movies):
             print("Invalid input; enter a valid number")
 
 
-def longest_title(movies):
-    """Returns longest movie title length."""
+def calculate_longest_title(movies):
+    """Return longest movie title length."""
     longest_title_length = 0
     for movie in movies:
         title_length = len(movie[INDEX_OF_TITLE])
@@ -129,7 +132,7 @@ def longest_title(movies):
 
 
 def get_valid_selection(prompt):
-    """Returns a valid (prompt).
+    """Return a valid (prompt).
 
      Keyword arguments:
      prompt -- the string displayed to the user
@@ -142,7 +145,7 @@ def get_valid_selection(prompt):
 
 
 def get_valid_year():
-    """Returns a valid year input."""
+    """Return a valid year input."""
     is_valid_year = False
     while not is_valid_year:
         try:
@@ -157,20 +160,21 @@ def get_valid_year():
 
 
 def save_movies(movies):
-    out_file = open('movies.csv', 'w')
-    movies.sort(key=operator.itemgetter(int(1)))
+    """Save movies to file."""
+    out_file = open('{}'.format(FILE_NAME), WATCHED)
+    movies.sort(key=operator.itemgetter(1, 0))
     for movie in movies:
-        line = list_to_string(movie)
+        line = convert_list_to_string(movie)
         out_file.write("{}\n".format(line))
     out_file.close()
 
 
-def list_to_string(list_of_data):
+def convert_list_to_string(movie):
     """Return a list as a string."""
-    string = ""
-    for element in list_of_data:
-        string += str("{},".format(element))
-    return string
+    separator = ','
+    for index, element in enumerate(movie):
+        movie[index] = str(element)
+    return separator.join(movie)
 
 
 if __name__ == '__main__':
