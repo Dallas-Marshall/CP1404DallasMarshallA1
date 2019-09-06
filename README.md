@@ -1,7 +1,7 @@
 # CP1404 Assignment 1 - Movies To Watch
 Assignment 1 for CP1404/CP1804/CP5632, IT@JCU
 
-By: _Your Name_
+By: Dallas Marshall
 
 This repo contains starter files including a Python file and two CSV files.  
 `movies.csv` is a data file for you to use.  
@@ -15,8 +15,8 @@ See https://trello.com/c/6H24THnj/21-wakatime-time-tracking-for-ides-join-our-le
 
 
 1. How long did the entire project (assignment 1) take you?
-> answer...
+> Around 15 hrs total time spent on this project.
 
 
 2. What do you plan to do  differently in your development process for assignment 2?
-> answer...
+> Make use of programs such as pylint and Flake8 earlier to help keep code well written and to help diagnose problems and maintenance issues.
