@@ -83,10 +83,7 @@ def count_movies_status(movies, status):
 
 def is_watched(movies, i):
     """Return True if movie is watched, else returns False."""
-    if movies[i][INDEX_OF_STATUS].lower() == WATCHED:
-        return True
-    else:
-        return False
+    return bool(movies[i][INDEX_OF_STATUS].lower() == WATCHED)
 
 
 def watch_movie(movies):
